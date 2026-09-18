@@ -1,27 +1,22 @@
 import { useState } from 'react';
 
-type Todo = {
-  id: number;
-  text: string;
-  done: boolean;
-};
+import type { Todo } from '../../types/todo';
+
+import {
+  useUpdateTodoMutation,
+  useDeleteTodoMutation,
+} from '../../queries/useTodoQuery';
 
 type TodoItemProps = {
   todo: Todo;
-  onToggle: (id: number) => void;
-  onDelete: (id: number) => void;
-  onEdit: (id: number, text: string) => void;
 };
 
-function TodoItem({
-  todo,
-  onToggle,
-  onDelete,
-  onEdit,
-}: TodoItemProps) {
+function TodoItem({ todo }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
-  //     console.log('TodoItem render:', todo.id, 'isEditing:', isEditing);
+
+  const updateTodoMutation = useUpdateTodoMutation();
+  const deleteTodoMutation = useDeleteTodoMutation();
 
   console.log(
     'TodoItem render:',
@@ -35,7 +30,12 @@ function TodoItem({
       return;
     }
 
-    onEdit(todo.id, editText);
+    updateTodoMutation.mutate({
+      id: todo.id,
+      data: {
+        text: editText,
+      },
+    });
 
     setIsEditing(false);
   }
@@ -43,6 +43,19 @@ function TodoItem({
   function handleCancel() {
     setEditText(todo.text);
     setIsEditing(false);
+  }
+
+  function handleToggle() {
+    updateTodoMutation.mutate({
+      id: todo.id,
+      data: {
+        done: !todo.done,
+      },
+    });
+  }
+
+  function handleDelete() {
+    deleteTodoMutation.mutate(todo.id);
   }
 
   return (
@@ -57,8 +70,13 @@ function TodoItem({
             }
           />
 
-          <button onClick={handleEdit}>
-            Simpan
+          <button
+            onClick={handleEdit}
+            disabled={updateTodoMutation.isPending}
+          >
+            {updateTodoMutation.isPending
+              ? 'Menyimpan...'
+              : 'Simpan'}
           </button>
 
           <button onClick={handleCancel}>
@@ -71,14 +89,24 @@ function TodoItem({
             <input
               type="checkbox"
               checked={todo.done}
-              onChange={() => onToggle(todo.id)}
+              onChange={handleToggle}
+              disabled={updateTodoMutation.isPending}
             />
 
-            {todo.text}
+            {todo.done ? (
+              <s>{todo.text}</s>
+            ) : (
+              todo.text
+            )}
           </label>
 
-          <button onClick={() => onDelete(todo.id)}>
-            Hapus
+          <button
+            onClick={handleDelete}
+            disabled={deleteTodoMutation.isPending}
+          >
+            {deleteTodoMutation.isPending
+              ? 'Menghapus...'
+              : 'Hapus'}
           </button>
 
           <button onClick={() => setIsEditing(true)}>

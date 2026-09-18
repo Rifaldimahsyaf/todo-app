@@ -1,0 +1,10 @@
+{
+  "todos": [
+    {
+      "id": "1",
+      "text": "Belajar React",
+      "done": true
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

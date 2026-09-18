@@ -1,10 +1,12 @@
-
 import { useEffect, useState } from 'react';
+
+import { useGetTodosQuery } from './queries/useTodoQuery';
 
 import Header from './components/Header';
 import TodoForm from './components/TodoForm';
 import TodoList from './components/todos/TodoList';
 
+/*
 type Todo = {
   id: number;
   text: string;
@@ -12,17 +14,21 @@ type Todo = {
 };
 
 let nextId = 3;
+*/
 
 function App() {
   
-// console.log('coba usestate');
-// const [name, setName] = useState<string>('');
-// const [count, setCount] = useState<number>(0);
+  // console.log('coba usestate');
+  // const [name, setName] = useState<string>('');
+  // const [count, setCount] = useState<number>(0);
 
-const [search, setSearch] = useState('');
-const [filter, setFilter] = useState('all');
-const [sort, setSort] = useState('default');
+  /*
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
+  const [sort, setSort] = useState('default');
+  */
 
+  /*
   const [todos, setTodos] = useState<Todo[]>([
     {
       id: 1,
@@ -35,18 +41,18 @@ const [sort, setSort] = useState('default');
       done: false,
     },
   ]);
+  */
+
+  /*
   useEffect(() => {
     // console.log('coba useeffect');
-  document.title = `Todo List (${todos.length})`;
+    document.title = `Todo List (${todos.length})`;
   }, [todos]);
+  */
 
-//  console.log('App render');
+  // console.log('App render');
 
-
-//   useEffect(() => {
-//   // console.log('Count berubah');
-// }, [count]);
-
+  /*
   function handleAdd(text: string) {
     const newTodo: Todo = {
       id: nextId++,
@@ -72,111 +78,157 @@ const [sort, setSort] = useState('default');
       todos.filter((todo) => todo.id !== id)
     );
   }
+
   function handleEdit(id: number, text: string) {
-  setTodos(
-    todos.map((todo) =>
-      todo.id === id
-        ? { ...todo, text: text }
-        : todo
-    )
-  );
-}
-
-const filteredTodos = todos.filter((todo) => {
-  const matchesSearch = todo.text
-    .toLowerCase()
-    .includes(search.toLowerCase());
-
-  const matchesFilter =
-    filter === 'all' ||
-    (filter === 'done' && todo.done) ||
-    (filter === 'active' && !todo.done);
-
-  return matchesSearch && matchesFilter;
-});
-
-const sortedTodos = [...filteredTodos].sort((a, b) => {
-  if (sort === 'az') {
-    return a.text.localeCompare(b.text);
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id
+          ? { ...todo, text: text }
+          : todo
+      )
+    );
   }
+  */
 
-  if (sort === 'za') {
-    return b.text.localeCompare(a.text);
-  }
+  /*
+  const filteredTodos = todos.filter((todo) => {
+    const matchesSearch = todo.text
+      .toLowerCase()
+      .includes(search.toLowerCase());
 
-  return 0;
-});
+    const matchesFilter =
+      filter === 'all' ||
+      (filter === 'done' && todo.done) ||
+      (filter === 'active' && !todo.done);
 
+    return matchesSearch && matchesFilter;
+  });
+
+  const sortedTodos = [...filteredTodos].sort((a, b) => {
+    if (sort === 'az') {
+      return a.text.localeCompare(b.text);
+    }
+
+    if (sort === 'za') {
+      return b.text.localeCompare(a.text);
+    }
+
+    return 0;
+  });
+  */
+
+  /*
   const doneCount = todos.filter(
     (todo) => todo.done
   ).length;
+  */
 
+  
+
+  const {
+    data: todos = [],
+    isLoading,
+    isError,
+  } = useGetTodosQuery();
+
+  
+  useEffect(() => {
+    document.title = `Todo List (${todos.length})`;
+  }, [todos]);
+
+  
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (isError) {
+    return <p>Gagal mengambil data Todo.</p>;
+  }
+
+ 
   return (
     <>
-    
-    {/* <p>Name: {name}</p>
+      {/* <p>Name: {name}</p>
 
-<input
-  type="text"
-  value={name}
-  onChange={(event) => setName(event.target.value)}
-  placeholder="Masukkan nama"
-/>
-    <p>Count: {count}</p>
+      <input
+        type="text"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        placeholder="Masukkan nama"
+      />
 
-<button onClick={() => setCount(count + 1)}>
-  Tambah Count
-</button> */}
+      <p>Count: {count}</p>
+
+      <button onClick={() => setCount(count + 1)}>
+        Tambah Count
+      </button> */}
 
       <Header
         total={todos.length}
-        done={doneCount}
+        done={todos.filter(
+          (todo) => todo.done
+        ).length}
       />
 
-      <TodoForm onAdd={handleAdd} />
-<input
-  type="text"
-  value={search}
-  onChange={(event) => setSearch(event.target.value)}
-  placeholder="Cari todo..."
-/>
+      <TodoForm />
 
-<div>
-  <button onClick={() => setFilter('all')}>
-    Semua
-  </button>
+      {/*
+      ==========================================
+      SEARCH, FILTER, SORTING
 
-  <button onClick={() => setFilter('active')}>
-    Belum selesai
-  </button>
+      DIPINDAHKAN KE TodoList.tsx
+      ==========================================
 
-  <button onClick={() => setFilter('done')}>
-    Selesai
-  </button>
-</div>
+      <input
+        type="text"
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        placeholder="Cari todo..."
+      />
 
-<div>
-  <label htmlFor="sort">
-    Urutkan:
-  </label>
+      <div>
+        <button onClick={() => setFilter('all')}>
+          Semua
+        </button>
 
-  <select
-    id="sort"
-    value={sort}
-    onChange={(event) => setSort(event.target.value)}
-  >
-    <option value="default">Default</option>
-    <option value="az">A - Z</option>
-    <option value="za">Z - A</option>
-  </select>
-</div>
+        <button onClick={() => setFilter('active')}>
+          Belum selesai
+        </button>
 
-<TodoList
-  todos={sortedTodos}
-  onToggle={handleToggle}
-  onDelete={handleDelete}
-  onEdit={handleEdit}
-/>
+        <button onClick={() => setFilter('done')}>
+          Selesai
+        </button>
+      </div>
+
+      <div>
+        <label htmlFor="sort">
+          Urutkan:
+        </label>
+
+        <select
+          id="sort"
+          value={sort}
+          onChange={(event) => setSort(event.target.value)}
+        >
+          <option value="default">
+            Default
+          </option>
+
+          <option value="az">
+            A - Z
+          </option>
+
+          <option value="za">
+            Z - A
+          </option>
+        </select>
+      </div>
+      */}
+
+      <TodoList
+        todos={todos}
+      />
     </>
   );
 }

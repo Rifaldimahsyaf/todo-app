@@ -1,38 +1,97 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-type TodoFormProps = {
-  onAdd: (text: string) => void;
-};
+import {
+  todoSchema,
+  type TodoFormData,
+} from "../schemas/todoSchema";
 
-function TodoForm({ onAdd }: TodoFormProps) {
-  const [text, setText] = useState('');
+import { useAddTodoMutation } from '../queries/useTodoQuery';
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+function TodoForm() {
+  const addTodoMutation = useAddTodoMutation();
 
-    if (text.trim() === '') {
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<TodoFormData>({
+    resolver: zodResolver(todoSchema),
+    defaultValues: {
+      text: '',
+    },
+  });
 
-    onAdd(text);
+  function onSubmit(data: TodoFormData) {
+    addTodoMutation.mutate({
+      text: data.text,
+      done: false,
+    });
 
-    setText('');
+    reset();
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <input
         type="text"
-        value={text}
-        onChange={(event) => setText(event.target.value)}
+        {...register('text')}
         placeholder="Tulis tugas..."
       />
 
-      <button type="submit">
-        Tambah
+      {errors.text && (
+        <p>{errors.text.message}</p>
+      )}
+
+      <button
+        type="submit"
+        disabled={addTodoMutation.isPending}
+      >
+        {addTodoMutation.isPending
+          ? 'Menambahkan...'
+          : 'Tambah'}
       </button>
     </form>
   );
 }
 
 export default TodoForm;
+// import { useState } from 'react';
+
+// type TodoFormProps = {
+//   onAdd: (text: string) => void;
+// };
+
+// function TodoForm({ onAdd }: TodoFormProps) {
+//   const [text, setText] = useState('');
+
+//   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+//     event.preventDefault();
+
+//     if (text.trim() === '') {
+//       return;
+//     }
+
+//     onAdd(text);
+
+//     setText('');
+//   }
+
+//   return (
+//     <form onSubmit={handleSubmit}>
+//       <input
+//         type="text"
+//         value={text}
+//         onChange={(event) => setText(event.target.value)}
+//         placeholder="Tulis tugas..."
+//       />
+
+//       <button type="submit">
+//         Tambah
+//       </button>
+//     </form>
+//   );
+// }
+
+// export default TodoForm;
