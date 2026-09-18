@@ -1,10 +1,26 @@
 {
   "todos": [
-    {
+     {
       "id": "1",
-      "text": "Belajar React",
+      "text": "paldi",
       "done": true
+    },
+    {
+      "id": "2",
+      "text": "mahsyaf",
+      "done": false
+    },
+     {
+      "id": "3",
+      "text": "paldi azmi ",
+      "done": true
+    },
+    {
+      "id": "4",
+      "text": "mahsyaf azmi",
+      "done": false
     }
+    
   ],
   "$schema": "./node_modules/json-server/schema.json"
 }
