@@ -21,6 +21,7 @@ function App() {
 
 const [search, setSearch] = useState('');
 const [filter, setFilter] = useState('all');
+const [sort, setSort] = useState('default');
 
   const [todos, setTodos] = useState<Todo[]>([
     {
@@ -94,6 +95,18 @@ const filteredTodos = todos.filter((todo) => {
   return matchesSearch && matchesFilter;
 });
 
+const sortedTodos = [...filteredTodos].sort((a, b) => {
+  if (sort === 'az') {
+    return a.text.localeCompare(b.text);
+  }
+
+  if (sort === 'za') {
+    return b.text.localeCompare(a.text);
+  }
+
+  return 0;
+});
+
   const doneCount = todos.filter(
     (todo) => todo.done
   ).length;
@@ -142,8 +155,24 @@ const filteredTodos = todos.filter((todo) => {
   </button>
 </div>
 
+<div>
+  <label htmlFor="sort">
+    Urutkan:
+  </label>
+
+  <select
+    id="sort"
+    value={sort}
+    onChange={(event) => setSort(event.target.value)}
+  >
+    <option value="default">Default</option>
+    <option value="az">A - Z</option>
+    <option value="za">Z - A</option>
+  </select>
+</div>
+
 <TodoList
-  todos={filteredTodos}
+  todos={sortedTodos}
   onToggle={handleToggle}
   onDelete={handleDelete}
   onEdit={handleEdit}
